@@ -1,0 +1,100 @@
+<html>
+<head>
+    <title> Lab2 </title>
+
+    <!--  bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" 
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="styles.css">
+
+    <!--  jQuery -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+    crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css"/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+    integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+    crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+</head>
+
+
+
+<body>
+
+  <body style="background-color:skyblue;">
+    <h2> Building Permits in Calgary</h2>
+
+
+
+    <!-- Github user: saidheeraj315 reference -->
+  <div class="calendar">
+    <form onsubmit="GetDates(); return false;">
+      <label>From</label>
+      <input type="date" id="from">
+      <br></br>
+      <label>To</label>
+      <input type="date" id="to">
+      <br></br>
+      <input class="btn btn-primary" type="submit" value="Submit">
+  </form>
+  </div>
+  <br></br>
+  <div id="mapid"></div>
+  <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+  <script>
+
+
+    //wesbite given
+    let api='https://data.calgary.ca/resource/c2es-76ed.geojson?';
+
+
+    //Github user: Samrknight12 reference
+    async function GetDates(){ 
+      
+      let dateFrom=document.querySelector('#from').value;
+      let dateTo=document.querySelector('#to').value;
+    
+      
+      if(dateFrom!=dateTo){
+        let url=api+'$where=issueddate > '+ '\'' + dateFrom +'\''+' and issueddate < '+'\''+dateTo+'\'';
+        const response = await fetch(url);
+        let data = await response.json();
+        console.log(url);
+
+      // Stackexchange user:guilvinec reference
+        var markers = L.markerClusterGroup();
+        const Geomark= L.geoJSON(data, {
+            onEachFeature : function(feature, layer){
+                var popupContent =  'Date Issued: '+feature.properties.issueddate+'<br></br>'+'Work Class Group: '+feature.properties.workclassgroup+'<br></br>'+'Contractor Name: '
+                +feature.properties.contractorname+'<br></br>'+'Community Name: '+feature.properties.communityname+'<br></br>'+'Original Address: '+feature.properties.originaladdress;
+                layer.bindPopup(popupContent)
+            },
+        });
+        markers.addLayer(Geomark);
+        map.addLayer(markers);
+    }
+  }
+  
+
+
+    //leaflet tutorial 
+    var map = L.map('mapid').setView([51.0447, -114.0719], 10);
+
+    const attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+    const tileUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    const tiles=L.tileLayer(tileUrl,{attribution});
+  
+    tiles.addTo(map);
+    var popup=L.popup();
+    var popup = new L.Popup();
+    var markers = L.markerClusterGroup();
+  </script>
+</div>
+
+</body>
+</html>
